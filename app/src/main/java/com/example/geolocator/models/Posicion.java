@@ -9,12 +9,7 @@ import androidx.room.PrimaryKey;
 
 
 
-@Entity(foreignKeys =
-    @ForeignKey(
-            entity = VendedorAmbulante.class,
-            parentColumns = "idVendedor",
-            childColumns = "idVendedor"
-    ))
+@Entity
 public class Posicion {
 
     @PrimaryKey(autoGenerate = true)
@@ -111,8 +106,9 @@ public class Posicion {
     @Override
     public String toString() {
         return "Posicion{" +
-                "idPosicion=" + idPosicion +
-                ", vendedor=" + idVendedor +
+                "persistIdPosicion=" + persistIdPosicion +
+                ", idPosicion=" + idPosicion +
+                ", idVendedor=" + idVendedor +
                 ", coordenada=" + coordenada +
                 ", fechaGen=" + fechaGen +
                 ", fechaReg=" + fechaReg +
