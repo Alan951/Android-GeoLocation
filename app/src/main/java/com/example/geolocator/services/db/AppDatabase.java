@@ -3,7 +3,6 @@ package com.example.geolocator.services.db;
 import android.content.Context;
 
 import com.example.geolocator.models.Posicion;
-import com.example.geolocator.models.VendedorAmbulante;
 
 import androidx.room.Database;
 import androidx.room.Room;

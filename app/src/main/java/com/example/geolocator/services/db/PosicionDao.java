@@ -14,7 +14,7 @@ public interface PosicionDao {
     @Insert
     void insertAll(Posicion... posicions);
 
-    @Query("SELECT * FROM posicion")
+    @Query("SELECT * FROM Posicion")
     List<Posicion> getPositions();
 
 }

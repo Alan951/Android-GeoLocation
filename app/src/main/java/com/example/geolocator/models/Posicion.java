@@ -1,5 +1,7 @@
 package com.example.geolocator.models;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import java.time.LocalDateTime;
 
 import androidx.room.Embedded;
@@ -19,6 +21,9 @@ public class Posicion {
 
     private Long idVendedor;
 
+    @JsonIgnore
+    private Boolean registrado;
+
     @Embedded
     private Coordenada coordenada;
 
@@ -27,6 +32,16 @@ public class Posicion {
     private LocalDateTime fechaReg;
 
     public Posicion() {}
+
+    public Posicion(Long persistIdPosicion, Long idPosicion, Long idVendedor, Boolean registrado, Coordenada coordenada, LocalDateTime fechaGen, LocalDateTime fechaReg) {
+        this.persistIdPosicion = persistIdPosicion;
+        this.idPosicion = idPosicion;
+        this.idVendedor = idVendedor;
+        this.registrado = registrado;
+        this.coordenada = coordenada;
+        this.fechaGen = fechaGen;
+        this.fechaReg = fechaReg;
+    }
 
     public Posicion(Long persistIdPosicion, Long idPosicion, Long idVendedor, Coordenada coordenada, LocalDateTime fechaGen,
                     LocalDateTime fechaReg) {
@@ -39,7 +54,7 @@ public class Posicion {
     }
 
     public Posicion(Long idPosicion, Long idVendedor, Coordenada coordenada, LocalDateTime fechaGen,
-                     LocalDateTime fechaReg) {
+                    LocalDateTime fechaReg) {
         this.idPosicion = idPosicion;
         this.idVendedor = idVendedor;
         this.coordenada = coordenada;
@@ -103,12 +118,21 @@ public class Posicion {
         this.persistIdPosicion = persistIdPosicion;
     }
 
+    public Boolean getRegistrado() {
+        return registrado;
+    }
+
+    public void setRegistrado(Boolean registrado) {
+        this.registrado = registrado;
+    }
+
     @Override
     public String toString() {
         return "Posicion{" +
                 "persistIdPosicion=" + persistIdPosicion +
                 ", idPosicion=" + idPosicion +
                 ", idVendedor=" + idVendedor +
+                ", registrado=" + registrado +
                 ", coordenada=" + coordenada +
                 ", fechaGen=" + fechaGen +
                 ", fechaReg=" + fechaReg +

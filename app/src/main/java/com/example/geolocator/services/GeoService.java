@@ -2,14 +2,14 @@ package com.example.geolocator.services;
 
 import android.content.Context;
 import android.location.Location;
-import android.os.Build;
 
 import com.example.geolocator.models.Coordenada;
 import com.example.geolocator.models.Posicion;
 import com.example.geolocator.services.db.AppDatabase;
-import com.example.geolocator.services.db.DbService;
 
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Optional;
 
 public class GeoService {
 
@@ -23,10 +23,20 @@ public class GeoService {
         Posicion posicion = new Posicion();
         posicion.setCoordenada(new Coordenada(location.getLatitude(), location.getLongitude()));
         posicion.setFechaGen(LocalDateTime.now());
-        posicion.setIdVendedor(1L);
+
+        Optional<Long> idVendedorOpt = VendedorAuthPref.getInstance(context).getIdVendedor();
+
+        posicion.setIdVendedor(idVendedorOpt.isPresent() ? idVendedorOpt.get(): 1L );
 
         AppDatabase.getInstance(context).posicionDao().insertAll(posicion);
-        
+    }
+
+    public void subirPosicion(Posicion posicion){
+
+    }
+
+    public void subirPosiciones(List<Posicion> posiciones){
+
     }
 
 
