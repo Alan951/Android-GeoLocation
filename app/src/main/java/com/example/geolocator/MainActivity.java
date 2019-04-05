@@ -1,6 +1,7 @@
 package com.example.geolocator;
 
 import android.Manifest;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -27,6 +28,7 @@ import com.example.geolocator.models.PosicionApi;
 import com.example.geolocator.models.VendedorAmbulante;
 import com.example.geolocator.services.VendedorAuthPref;
 import com.example.geolocator.services.api.ApiService;
+import com.example.geolocator.services.api.GeoServiceApi;
 import com.example.geolocator.services.api.models.SuccesfulHandler;
 import com.example.geolocator.services.db.AppDatabase;
 
@@ -37,6 +39,9 @@ public class MainActivity extends AppCompatActivity {
 
     private TextView txtEstadoServicio;
     private TextView txtCountPositions;
+    private TextView txtVendedorName;
+    private TextView btnRegistrarPosiciones;
+    private Context context = this;
 
     private static final String TAG = "MainActivity";
 
@@ -46,9 +51,40 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         this.txtEstadoServicio = findViewById(R.id.txtEstadoServicio);
-        this.txtCountPositions = findViewById(R.id.txtCountPositions);
-        this.txtCountPositions.setVisibility(View.INVISIBLE);
+        //this.txtCountPositions = findViewById(R.id.txtCountPositions);
+        //this.txtCountPositions.setVisibility(View.INVISIBLE);
+        this.txtVendedorName = findViewById(R.id.txtVendedorName);
+        this.btnRegistrarPosiciones = findViewById(R.id.btnRegistrarPosiciones);
+
+        this.btnRegistrarPosiciones.setText("Subir posiciones");
+
         checkStatus();
+
+        VendedorAuthPref.getInstance(this).getIdVendedor().ifPresent((idVendedor) -> {
+            Toast.makeText(this, "Obteniendo usuario con id = " + idVendedor, Toast.LENGTH_SHORT).show();
+
+            ApiService.getInstance()
+                    .getGeoService()
+                    .getVendedor(idVendedor)
+                    .enqueue(new Callback<VendedorAmbulante>() {
+                @Override
+                public void onResponse(Call<VendedorAmbulante> call, Response<VendedorAmbulante> response) {
+                    if(response.isSuccessful()){
+                        VendedorAmbulante vendedor = response.body();
+
+                        txtVendedorName.setText(vendedor.getNombre());
+                    }else if(response.code() == 404){ //El vendedor con ese id no existe
+                        Toast.makeText(MainActivity.this, "El id del vendedor no existe", Toast.LENGTH_SHORT).show();
+                    }
+                }
+
+                @Override
+                public void onFailure(Call<VendedorAmbulante> call, Throwable t) {
+                    Toast.makeText(MainActivity.this, "Error al realizar la petición", Toast.LENGTH_LONG).show();
+                    txtVendedorName.setText(t.getMessage());
+                }
+            });
+        });
     }
 
     @Override
@@ -100,6 +136,12 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void checkStatus(){
+        List<Posicion> unregPos = AppDatabase.getInstance(this).posicionDao().getUnregisteredPositions();
+
+        if(unregPos.size() >= 0){
+            this.btnRegistrarPosiciones.setText("Subir posiciones (" + unregPos.size() + ")");
+        }
+
         boolean serviceExists = ServiceUtils.isServiceRunning(LocatorService.class, this);
 
         if(serviceExists){
@@ -155,7 +197,7 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    protected void onShowPositionsInConsole(View view){
+    /*protected void onShowPositionsInConsole(View view){
         List<Posicion> posiciones = AppDatabase.getInstance(this).posicionDao().getPositions();
 
         Log.i("MainActivity", posiciones.toString());
@@ -163,7 +205,7 @@ public class MainActivity extends AppCompatActivity {
         this.txtCountPositions.setText("Cantidad de posiciones registradas = " + posiciones.size());
         if(this.txtCountPositions.getVisibility() != View.VISIBLE)
             this.txtCountPositions.setVisibility(View.VISIBLE);
-    }
+    }*/
 
     protected void onGetLastPosition(View view){
         ApiService.getInstance().getGeoService().getUltimaPosicion().enqueue(new Callback<List<PosicionApi>>() {
@@ -187,10 +229,17 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    protected void onTestPositions(View view){
-        List<Posicion> posiciones = AppDatabase.getInstance(this).posicionDao().getPositions();
+    protected void onRegistrarPosiciones(View view){
+        if(!ServiceUtils.isConnectedOnWifi(this)){
+            Toast.makeText(context, "No estas conectado a internet", Toast.LENGTH_SHORT).show();
+            return;
+        }
 
-        if(posiciones.size() == 0){
+
+        List<Posicion> unregisteredPositions = AppDatabase.getInstance(this).posicionDao().getUnregisteredPositions();
+
+        if(unregisteredPositions.size() == 0){
+            Toast.makeText(this, "No existen posiciones sin registrar", Toast.LENGTH_SHORT).show();
             return;
         }
 
@@ -199,7 +248,7 @@ public class MainActivity extends AppCompatActivity {
         vendedor.setIdVendedor(1L);
 
         posList.setVendedorAmbulante(vendedor);
-        posList.setPosiciones(posiciones);
+        posList.setPosiciones(unregisteredPositions);
 
         Log.i(TAG, "posList: " + posList);
 
@@ -207,16 +256,32 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onResponse(Call<SuccesfulHandler> call, Response<SuccesfulHandler> response) {
                 if(response.isSuccessful()){
-                    Log.i(TAG, "onTestPositions (raw): " + response.raw());
                     Log.i(TAG, "onTestPositions (obj): " + response.body().getDetails());
+
+                    unregisteredPositions.forEach((pos) -> {
+                        pos.setRegistrado(true);
+                    });
+
+                    Log.i(TAG, "Posiciones marcadas como registrados");
+
+                    AppDatabase
+                            .getInstance(context)
+                            .posicionDao().updatePositions(unregisteredPositions.stream().toArray(Posicion[]::new));
+
+                    checkStatus();
+
                 }else{
                     Log.e(TAG, "onTestPositions - noSuccesful: " + response.raw().toString() );
+                    Toast.makeText(context, "Error al registrar las posiciones", Toast.LENGTH_SHORT).show();
+                    checkStatus();
                 }
             }
 
             @Override
             public void onFailure(Call<SuccesfulHandler> call, Throwable t) {
                 Log.e(TAG, "onTestPositions - onFailure", t);
+                Toast.makeText(context, "Sin acceso al servidor", Toast.LENGTH_SHORT).show();
+                checkStatus();
             }
         });
     }

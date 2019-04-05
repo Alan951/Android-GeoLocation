@@ -30,17 +30,31 @@
         app:layout_constraintTop_toBottomOf="@+id/textView"
         app:layout_constraintVertical_bias="0.007" />
 
+    <TextView
+        android:id="@+id/txtVendedorName"
+        android:layout_width="364dp"
+        android:layout_height="52dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginBottom="8dp"
+        android:textSize="18sp"
+        app:layout_constraintBottom_toTopOf="@+id/btnIniciar"
+        app:layout_constraintHorizontal_bias="0.501"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/txtEstadoServicio"
+        app:layout_constraintVertical_bias="0.091" />
+
     <Button
         android:id="@+id/btnIniciar"
         android:layout_width="368dp"
         android:layout_height="48dp"
         android:layout_marginStart="8dp"
-        android:layout_marginTop="56dp"
+        android:layout_marginTop="108dp"
         android:layout_marginEnd="8dp"
-        android:text="Iniciar servicio"
         android:onClick="onIniciarServicio"
+        android:text="Iniciar servicio"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.498"
+        app:layout_constraintHorizontal_bias="0.518"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/textView" />
 
@@ -49,7 +63,7 @@
         android:layout_width="368dp"
         android:layout_height="48dp"
         android:layout_marginStart="8dp"
-        android:layout_marginTop="8dp"
+        android:layout_marginTop="16dp"
         android:layout_marginEnd="8dp"
         android:onClick="onDetenerServicio"
         android:text="Detener servicio"
@@ -59,29 +73,17 @@
         app:layout_constraintTop_toBottomOf="@+id/btnIniciar" />
 
     <Button
-        android:id="@+id/btnDetener2"
+        android:id="@+id/btnRegistrarPosiciones"
         android:layout_width="368dp"
         android:layout_height="48dp"
         android:layout_marginStart="8dp"
-        android:layout_marginTop="16dp"
+        android:layout_marginTop="8dp"
         android:layout_marginEnd="8dp"
-        android:onClick="onDetenerServicio"
+        android:onClick="onRegistrarPosiciones"
         android:text="Subir posiciones"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.518"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/btnDetener" />
-
-    <TextView
-        android:id="@+id/txtCountPositions"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
-        android:layout_marginEnd="8dp"
-        android:text=""
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.498"
-        app:layout_constraintStart_toStartOf="parent"
-        tools:layout_editor_absoluteY="422dp" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
